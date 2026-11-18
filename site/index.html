@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Gratitude Wall</title>
+<meta name="description" content="Write one thing you're grateful for each day. On December 31st, receive a letter about your year in gratitude.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Karla:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F6EFE3;
+    --paper-2: #FBF7F0;
+    --ink: #2B2118;
+    --ink-soft: #6B5B4B;
+    --gold: #B0832F;
+    --gold-soft: #E6D3A8;
+    --line: #E3D6C0;
+    --terracotta: #B5573A;
+    --serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --sans: "Karla", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--paper);
+    background-image: radial-gradient(circle at 20% 0%, #FFF9EE 0, transparent 55%),
+                      radial-gradient(circle at 100% 100%, #F0E4CF 0, transparent 50%);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 18px 64px; }
+
+  /* Header */
+  header { text-align: center; margin-bottom: 22px; }
+  .eyebrow { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+  h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(38px, 8vw, 58px); line-height: 1.05; margin: 10px 0 10px; }
+  h1 em { color: var(--terracotta); font-style: italic; font-weight: 500; }
+  .sub { color: var(--ink-soft); max-width: 520px; margin: 0 auto; font-size: 16px; }
+  .badge { display: inline-block; margin-top: 16px; padding: 6px 14px; border: 1px solid var(--gold-soft); border-radius: 999px; font-size: 13px; color: var(--ink-soft); background: rgba(255,255,255,.5); }
+  .badge b { color: var(--ink); font-weight: 600; }
+
+  /* Tabs */
+  nav { display: flex; justify-content: center; gap: 6px; margin: 22px 0 26px; }
+  nav a { text-decoration: none; color: var(--ink-soft); font-weight: 500; font-size: 15px; padding: 9px 18px; border-radius: 999px; border: 1px solid transparent; }
+  nav a.active { color: var(--ink); background: var(--paper-2); border-color: var(--line); box-shadow: 0 1px 2px rgba(60,40,10,.06); }
+
+  /* Card */
+  .card { background: var(--paper-2); border: 1px solid var(--line); border-radius: 18px; padding: 26px 22px; max-width: 560px; margin: 0 auto; box-shadow: 0 10px 30px -18px rgba(70,45,10,.35); position: relative; }
+  .card::before { content: ""; position: absolute; inset: 7px; border: 1px solid #EFE4D0; border-radius: 13px; pointer-events: none; }
+  .field { margin-bottom: 18px; position: relative; }
+  .lbl { display: block; font-size: 13px; font-weight: 600; letter-spacing: .04em; margin-bottom: 7px; }
+  .hint { font-weight: 400; color: var(--ink-soft); letter-spacing: 0; }
+  input[type=text], input[type=email], textarea {
+    width: 100%; font: inherit; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px 13px; outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  input:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(176,131,47,.15); }
+  textarea { font-family: var(--serif); font-size: 21px; line-height: 1.4; min-height: 130px; resize: vertical; }
+  textarea::placeholder { color: #B3A592; font-style: italic; }
+  .count { text-align: right; font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
+  .row2 { display: grid; grid-template-columns: 1fr; gap: 0 14px; }
+  @media (min-width: 560px) { .row2 { grid-template-columns: 1fr 1fr; } }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip { font: inherit; font-size: 14px; border: 1px solid var(--line); background: #fff; color: var(--ink-soft); border-radius: 999px; padding: 6px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .chip[aria-pressed=true] { border-color: var(--ink); color: var(--ink); background: #fff; box-shadow: inset 0 0 0 1px var(--ink); }
+
+  .vis { display: grid; gap: 8px; }
+  .vis label { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 10px 12px; cursor: pointer; font-size: 15px; }
+  .vis input { margin-top: 4px; accent-color: var(--terracotta); }
+  .vis small { display: block; color: var(--ink-soft); font-size: 13px; }
+
+  .btn { font: inherit; font-weight: 600; font-size: 16px; border: none; border-radius: 12px; padding: 14px 18px; cursor: pointer; width: 100%; background: var(--ink); color: var(--paper-2); transition: transform .1s, opacity .15s; }
+  .btn:hover { opacity: .92; }
+  .btn:active { transform: scale(.99); }
+  .btn[disabled] { opacity: .55; cursor: default; }
+  .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  .err { color: var(--terracotta); font-size: 14px; margin: 10px 0 0; min-height: 1em; }
+  .fine { font-size: 13px; color: var(--ink-soft); text-align: center; margin-top: 14px; }
+
+  /* Success */
+  .success { text-align: center; padding: 8px 4px; }
+  .orn { color: var(--gold); font-size: 22px; letter-spacing: .5em; }
+  .success h2 { font-family: var(--serif); font-size: 34px; font-weight: 600; margin: 8px 0 6px; line-height: 1.1; }
+  .success h2 em { color: var(--terracotta); }
+  .quote { font-family: var(--serif); font-style: italic; font-size: 21px; line-height: 1.4; border-left: 2px solid var(--gold-soft); padding: 4px 0 4px 16px; text-align: left; margin: 20px 0; }
+  .streak { display: flex; justify-content: center; gap: 26px; margin: 18px 0 22px; }
+  .streak div { font-size: 13px; color: var(--ink-soft); }
+  .streak b { display: block; font-family: var(--serif); font-size: 36px; color: var(--ink); line-height: 1; font-weight: 600; }
+  .btns { display: grid; gap: 8px; }
+
+  .closed { text-align: center; }
+  .closed h2 { font-family: var(--serif); font-size: 30px; margin: 6px 0; }
+
+  /* Wall */
+  .wall-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+  .stats { font-size: 14px; color: var(--ink-soft); }
+  .stats b { color: var(--ink); font-family: var(--serif); font-size: 22px; font-weight: 600; }
+  .notes { columns: 1; column-gap: 16px; }
+  @media (min-width: 560px) { .notes { columns: 2; } }
+  @media (min-width: 860px) { .notes { columns: 3; } }
+  .note { break-inside: avoid; margin: 0 0 16px; background: #FFFDF8; border: 1px solid var(--line); border-radius: 4px 14px 4px 14px; padding: 18px 18px 14px; position: relative; box-shadow: 0 6px 14px -10px rgba(70,45,10,.4); animation: rise .5s ease both; }
+  .note::after { content: ""; position: absolute; top: -7px; left: 50%; width: 46px; height: 14px; transform: translateX(-50%) rotate(-2deg); background: rgba(230,211,168,.65); border-radius: 2px; }
+  .note .cat { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .note .cat .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .note p { font-family: var(--serif); font-size: 20px; line-height: 1.38; margin: 8px 0 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .note .by { font-size: 13px; color: var(--ink-soft); display: flex; justify-content: space-between; gap: 8px; }
+  .empty { text-align: center; color: var(--ink-soft); padding: 40px 10px; font-family: var(--serif); font-size: 22px; font-style: italic; }
+  .more { display: block; margin: 8px auto 0; width: auto; padding: 10px 22px; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  .demo { background: #FFF4D6; border: 1px dashed var(--gold); color: #6A4E12; font-size: 13px; border-radius: 10px; padding: 8px 12px; text-align: center; margin: 0 auto 18px; max-width: 560px; }
+  footer { text-align: center; color: var(--ink-soft); font-size: 13px; margin-top: 46px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="demo" id="demoBanner" hidden>Preview mode: sample entries only. Nothing you type here is saved.</div>
+
+  <header>
+    <div class="eyebrow" id="dates"></div>
+    <h1 id="title"></h1>
+    <p class="sub">Write one thing you're grateful for each day. On December 31st, you'll receive a letter about your season of gratitude.</p>
+    <div class="badge" id="badge"></div>
+  </header>
+
+  <nav>
+    <a href="#write" id="tabWrite">Write today's gratitude</a>
+    <a href="#wall" id="tabWall">The wall</a>
+  </nav>
+
+  <!-- WRITE VIEW -->
+  <section id="viewWrite">
+    <div class="card">
+      <form id="form" novalidate>
+        <div class="row2">
+          <div class="field">
+            <label class="lbl" for="name">Your name</label>
+            <input type="text" id="name" maxlength="60" autocomplete="name" placeholder="e.g. Amaka Obi">
+          </div>
+          <div class="field">
+            <label class="lbl" for="email">Email <span class="hint">(your letter goes here)</span></label>
+            <input type="email" id="email" maxlength="120" autocomplete="email" placeholder="you@example.com">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="lbl" for="text">Today I'm grateful for…</label>
+          <textarea id="text" maxlength="600" placeholder="the way my sister called just to check on me…"></textarea>
+          <div class="count"><span id="count">0</span>/600</div>
+        </div>
+
+        <div class="field">
+          <span class="lbl">What is it about? <span class="hint">(optional)</span></span>
+          <div class="chips" id="chips"></div>
+        </div>
+
+        <div class="field">
+          <span class="lbl">Where should it go?</span>
+          <div class="vis">
+            <label><input type="radio" name="vis" value="public" checked><span>On the wall with my first name<small>Everyone visiting the wall can read it.</small></span></label>
+            <label><input type="radio" name="vis" value="anonymous"><span>On the wall anonymously<small>Shown without your name.</small></span></label>
+            <label><input type="radio" name="vis" value="private"><span>Only for my letter<small>Never shown on the wall.</small></span></label>
+          </div>
+        </div>
+
+        <button class="btn" type="submit" id="submit">Add my gratitude</button>
+        <p class="err" id="err" role="alert"></p>
+        <p class="fine">Every entry still goes into your Dec 31 letter, whatever you choose above.</p>
+      </form>
+
+      <div class="success" id="success" hidden>
+        <div class="orn">✦ ✦ ✦</div>
+        <h2>Thank you, <em id="sName"></em></h2>
+        <p class="sub" style="margin:0 auto">It's saved for your letter.</p>
+        <div class="quote" id="sQuote"></div>
+        <div class="streak">
+          <div><b id="sDays">1</b>days of gratitude</div>
+          <div><b id="sLeft">0</b>days to Dec 31</div>
+        </div>
+        <div class="btns">
+          <a class="btn" href="#wall" style="text-align:center;text-decoration:none">See the wall</a>
+          <button class="btn ghost" type="button" id="again">Write another</button>
+        </div>
+      </div>
+
+      <div class="closed" id="closed" hidden>
+        <div class="orn">✦</div>
+        <h2 id="closedTitle"></h2>
+        <p class="sub" id="closedText"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WALL VIEW -->
+  <section id="viewWall" hidden>
+    <div class="wall-top">
+      <div class="stats" id="stats"></div>
+      <div class="chips" id="filters"></div>
+    </div>
+    <div class="notes" id="notes"></div>
+    <div class="empty" id="wallEmpty" hidden>The wall is waiting for its first note.</div>
+    <button class="btn ghost more" id="more" hidden>Show more</button>
+  </section>
+
+  <footer id="footer"></footer>
+</div>
+
+<script>
+/* ============================================================
+   SETTINGS: the only part you need to edit
+   ============================================================ */
+const CONFIG = {
+  SUPABASE_URL: "https://uuxvjgjvohoqsipvirbw.supabase.co",            // e.g. https://abcd1234.supabase.co
+  SUPABASE_ANON_KEY: "sb_publishable_Qw7UkE2PdIVBpPTeHgjFVQ_kBYClWo_", // starts with sb_publishable_ (Connect button in Supabase)
+  CHALLENGE_NAME: "The Gratitude Wall",
+  START_DATE: "2026-11-17",                     // first day people can write
+  END_DATE: "2026-12-31",                       // last day; letters go out this day
+  TIME_ZONE: "Africa/Lagos",                    // decides when "today" changes
+  HOST: "Dammie",                               // shown in the footer
+};
+/* ============================================================ */
+
+const DEMO = CONFIG.SUPABASE_URL.startsWith("YOUR_");
+
+const CATEGORIES = [
+  { id: "people",  label: "People",      color: "#B5573A" },
+  { id: "moments", label: "Moments",     color: "#C68B2C" },
+  { id: "health",  label: "Health",      color: "#5E8C61" },
+  { id: "growth",  label: "Growth",      color: "#3F6E8C" },
+  { id: "work",    label: "Work",        color: "#7A5C99" },
+  { id: "faith",   label: "Faith",       color: "#8C6B3F" },
+  { id: "simple",  label: "Simple joys", color: "#C76B8A" },
+];
+const catById = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
+
+/* ---------- dates ---------- */
+function todayISO() {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: CONFIG.TIME_ZONE, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+}
+function dayNum(iso) { const [y, m, d] = iso.split("-").map(Number); return Date.UTC(y, m - 1, d) / 86400000; }
+function fmt(iso, opts = { month: "short", day: "numeric" }) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-GB", { ...opts, timeZone: "UTC" });
+}
+const TODAY = todayISO();
+const TOTAL_DAYS = dayNum(CONFIG.END_DATE) - dayNum(CONFIG.START_DATE) + 1;
+const DAY_N = dayNum(TODAY) - dayNum(CONFIG.START_DATE) + 1;
+const DAYS_LEFT = Math.max(0, dayNum(CONFIG.END_DATE) - dayNum(TODAY));
+const PHASE = DAY_N < 1 ? "before" : DAY_N > TOTAL_DAYS ? "after" : "open";
+
+/* ---------- storage (optional convenience) ---------- */
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+};
+
+/* ---------- data layer ---------- */
+let sb = null;
+function loadSupabase() {
+  return new Promise((resolve, reject) => {
+    if (window.supabase) return resolve();
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js";
+    s.onload = resolve; s.onerror = () => reject(new Error("Could not load Supabase"));
+    document.head.appendChild(s);
+  });
+}
+
+const liveApi = {
+  async init() { await loadSupabase(); sb = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY); },
+  async submit(e) {
+    const { data, error } = await sb.rpc("gw_submit", { p_email: e.email, p_name: e.name, p_text: e.text, p_category: e.category, p_visibility: e.visibility });
+    if (error) throw new Error(error.message);
+    return { days: data };
+  },
+  async wall(limit, before) {
+    const { data, error } = await sb.rpc("gw_wall", { p_limit: limit, p_before: before });
+    if (error) throw new Error(error.message);
+    return data || [];
+  },
+  async stats() {
+    const { data, error } = await sb.rpc("gw_stats");
+    if (error) throw new Error(error.message);
+    return Array.isArray(data) ? data[0] : data;
+  },
+};
+
+const demoEntries = (() => {
+  const s = [
+    ["Tolu", "My mum's voice note this morning. She prays for me like it's her full-time job.", "people", 0],
+    ["Anonymous", "Light stayed on all evening. I finished my assignment without rushing to a café.", "simple", 0],
+    ["Chidi", "My manager said 'take the afternoon off, you've earned it'. I didn't know how much I needed to hear that.", "work", 1],
+    ["Zainab", "Waking up without the headache that has followed me all week.", "health", 1],
+    ["Anonymous", "That I am still here, still trying.", "growth", 2],
+    ["Ifeoma", "Jollof at my aunty's house. The party kind, with the smoky bottom pot.", "moments", 2],
+    ["Bola", "The rain finally cooled Lagos down. Slept like a baby.", "simple", 3],
+    ["Musa", "My little brother passed his WAEC maths. We screamed in the compound.", "people", 3],
+    ["Anonymous", "Grace for another week. Some weeks you just have to say it plainly.", "faith", 4],
+    ["Ngozi", "A stranger at the bus stop shared her umbrella with me and we talked all the way to Obalende.", "moments", 4],
+    ["Kemi", "I said no to something I didn't want to do, and the world didn't end.", "growth", 5],
+    ["Dayo", "Fresh agege bread and ewa agoyin. Small things.", "simple", 5],
+  ];
+  return s.map(([name, text, category, ago], i) => {
+    const d = new Date(Date.UTC(...TODAY.split("-").map((v, j) => j === 1 ? v - 1 : +v)) - ago * 86400000);
+    return { id: 100 - i, display_name: name, text, category, entry_date: d.toISOString().slice(0, 10) };
+  });
+})();
+const demoApi = {
+  async init() {},
+  async submit(e) { await new Promise(r => setTimeout(r, 500)); return { days: 3 }; },
+  async wall(limit, before) { return demoEntries.filter(x => before == null || x.id < before).slice(0, limit); },
+  async stats() { return { people: 11, entries: 37 }; },
+};
+const api = DEMO ? demoApi : liveApi;
+
+/* ---------- header ---------- */
+const $ = id => document.getElementById(id);
+document.title = CONFIG.CHALLENGE_NAME;
+$("title").innerHTML = CONFIG.CHALLENGE_NAME.replace(/Gratitude/, "<em>Gratitude</em>");
+$("dates").textContent = `${fmt(CONFIG.START_DATE)} – ${fmt(CONFIG.END_DATE, { day: "numeric", month: "short", year: "numeric" })}`;
+$("badge").innerHTML =
+  PHASE === "open"   ? `Day <b>${DAY_N}</b> of ${TOTAL_DAYS} · <b>${DAYS_LEFT}</b> ${DAYS_LEFT === 1 ? "day" : "days"} to letters` :
+  PHASE === "before" ? `Opens on <b>${fmt(CONFIG.START_DATE, { day: "numeric", month: "long" })}</b>` :
+                       `Letters have gone out. Happy New Year!`;
+$("footer").textContent = `Hosted with love by ${CONFIG.HOST}`;
+if (DEMO) $("demoBanner").hidden = false;
+
+/* ---------- write view ---------- */
+let chosenCat = null;
+$("chips").innerHTML = CATEGORIES.map(c =>
+  `<button type="button" class="chip" aria-pressed="false" data-id="${c.id}"><span class="dot" style="background:${c.color}"></span>${c.label}</button>`).join("");
+$("chips").addEventListener("click", ev => {
+  const b = ev.target.closest(".chip"); if (!b) return;
+  chosenCat = chosenCat === b.dataset.id ? null : b.dataset.id;
+  $("chips").querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.id === chosenCat)));
+});
+$("text").addEventListener("input", () => { $("count").textContent = $("text").value.length; });
+$("name").value = store.get("gw_name") || "";
+$("email").value = store.get("gw_email") || "";
+
+if (PHASE !== "open") {
+  $("form").hidden = true; $("closed").hidden = false;
+  $("closedTitle").textContent = PHASE === "before" ? "Almost time" : "The wall is closed";
+  $("closedText").textContent = PHASE === "before"
+    ? `Come back on ${fmt(CONFIG.START_DATE, { day: "numeric", month: "long" })} to write your first gratitude.`
+    : "Thank you for every note you wrote. Check your inbox for your letter, and have a beautiful new year.";
+}
+
+$("form").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const name = $("name").value.trim();
+  const email = $("email").value.trim().toLowerCase();
+  const text = $("text").value.trim();
+  const visibility = document.querySelector("input[name=vis]:checked").value;
+  const err = $("err"); err.textContent = "";
+  if (name.length < 2) return (err.textContent = "Please add your name.");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return (err.textContent = "Please add a valid email so your letter can reach you.");
+  if (text.length < 3) return (err.textContent = "Write a few words about what you're grateful for.");
+
+  const btn = $("submit"); btn.disabled = true; btn.textContent = "Saving…";
+  try {
+    const res = await api.submit({ name, email, text, category: chosenCat, visibility });
+    store.set("gw_name", name); store.set("gw_email", email);
+    $("sName").textContent = name.split(/\s+/)[0];
+    $("sQuote").textContent = `“${text}”`;
+    $("sDays").textContent = res.days;
+    $("sDays").nextSibling.textContent = res.days === 1 ? "day of gratitude" : "days of gratitude";
+    $("sLeft").textContent = DAYS_LEFT;
+    $("form").hidden = true; $("success").hidden = false;
+    wallLoaded = false;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (e) {
+    err.textContent = /limit/i.test(e.message) ? "You've written a lot today! Come back tomorrow." : "Something went wrong saving that. Please try again.";
+    console.error(e);
+  } finally { btn.disabled = false; btn.textContent = "Add my gratitude"; }
+});
+$("again").addEventListener("click", () => {
+  $("text").value = ""; $("count").textContent = "0"; chosenCat = null;
+  $("chips").querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", "false"));
+  $("success").hidden = true; $("form").hidden = false; $("text").focus();
+});
+
+/* ---------- wall view ---------- */
+const PAGE = 60;
+let wallLoaded = false, wallItems = [], filter = null, oldestId = null;
+$("filters").innerHTML = `<button type="button" class="chip" aria-pressed="true" data-id="">All</button>` + CATEGORIES.map(c =>
+  `<button type="button" class="chip" aria-pressed="false" data-id="${c.id}"><span class="dot" style="background:${c.color}"></span>${c.label}</button>`).join("");
+$("filters").addEventListener("click", ev => {
+  const b = ev.target.closest(".chip"); if (!b) return;
+  filter = b.dataset.id || null;
+  $("filters").querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", String((x.dataset.id || null) === filter)));
+  renderWall();
+});
+
+function noteEl(n, i) {
+  const el = document.createElement("article");
+  el.className = "note";
+  const rot = ((n.id * 37) % 7 - 3) * 0.35;
+  el.style.transform = `rotate(${rot}deg)`;
+  el.style.animationDelay = `${Math.min(i, 12) * 40}ms`;
+  const c = catById[n.category];
+  if (c) {
+    const cat = document.createElement("div"); cat.className = "cat"; cat.style.color = c.color;
+    cat.innerHTML = `<span class="dot" style="background:${c.color}"></span>`;
+    cat.append(c.label); el.append(cat);
+  }
+  const p = document.createElement("p"); p.textContent = n.text; el.append(p);
+  const by = document.createElement("div"); by.className = "by";
+  const who = document.createElement("span"); who.textContent = `— ${n.display_name}`;
+  const when = document.createElement("span"); when.textContent = fmt(n.entry_date);
+  by.append(who, when); el.append(by);
+  return el;
+}
+function renderWall() {
+  const list = filter ? wallItems.filter(n => n.category === filter) : wallItems;
+  const box = $("notes"); box.innerHTML = "";
+  list.forEach((n, i) => box.append(noteEl(n, i)));
+  $("wallEmpty").hidden = list.length > 0;
+  $("wallEmpty").textContent = filter ? "No notes in this category yet." : "The wall is waiting for its first note.";
+}
+async function loadWall(more = false) {
+  try {
+    if (!more) {
+      const s = await api.stats();
+      if (s) $("stats").innerHTML = `<b>${s.entries}</b> gratitudes from <b>${s.people}</b> ${s.people === 1 ? "person" : "people"}`;
+    }
+    const rows = await api.wall(PAGE, more ? oldestId : null);
+    wallItems = more ? wallItems.concat(rows) : rows;
+    if (rows.length) oldestId = rows[rows.length - 1].id;
+    $("more").hidden = rows.length < PAGE;
+    renderWall(); wallLoaded = true;
+  } catch (e) {
+    console.error(e);
+    $("notes").innerHTML = ""; $("wallEmpty").hidden = false;
+    $("wallEmpty").textContent = "Couldn't load the wall just now. Please refresh.";
+  }
+}
+$("more").addEventListener("click", () => loadWall(true));
+
+/* ---------- routing ---------- */
+function route() {
+  const wall = location.hash === "#wall";
+  $("viewWall").hidden = !wall; $("viewWrite").hidden = wall;
+  $("tabWall").classList.toggle("active", wall); $("tabWrite").classList.toggle("active", !wall);
+  if (wall && !wallLoaded) loadWall();
+}
+window.addEventListener("hashchange", route);
+api.init().then(route).catch(e => {
+  console.error(e); route();
+  $("err").textContent = "Couldn't connect. Check your internet and refresh.";
+});
+</script>
+</body>
+</html>
